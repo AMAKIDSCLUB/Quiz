@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Country Flag Quiz - Survival Mode</title>
+  <style>
+    /* Use your existing styles or link to a shared CSS */
+    body {
+            font-family: 'Arial', sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+            background-color: #6495ED;
+            background-image: url('background.jpeg'); /* Optional background image */
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+    }
+    .quiz-container {
+      background: turquoise;
+      padding: 30px;
+      border-radius: 10px;
+    }
+    .flag-container img {
+      max-height: 200px;
+    }
+    .options-container {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+      margin: 20px 0;
+    }
+    .option-button {
+      padding: 12px;
+      border: none;
+      background: #eee;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .option-button:hover { background: #ddd; }
+    .option-button.correct { background: green; color: white; }
+    .option-button.incorrect { background: red; color: white; }
+    .next-button {
+      padding: 10px 20px;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      display: none;
+      cursor: pointer;
+    }
+    .capital-info {
+      font-weight: bold;
+      margin: 10px 0;
+      display: none;
+    }
+    .footer { margin-top: 20px; font-weight: bold; color: #555; }
+  </style>
+</head>
+<body>
+
+  <h1>Country Flag Quiz - Survival Mode</h1>
+  <div class="quiz-container">
+    <p>Score: <span id="score">0</span> | Mistakes: <span id="mistakes">0</span>/3</p>
+    <div class="flag-container">
+      <img id="flag-image" src="" alt="Country Flag">
+    </div>
+    <div class="options-container" id="options-container"></div>
+    <div class="capital-info" id="capital-info"></div>
+    <button id="next-button" class="next-button">Next Flag</button>
+  </div>
+
+  <div class="footer">Made by AMA Kids Clubs</div>
+
+  <script>
+    // Country data
+    const countries = [
+            { code: "ad", name: "Andorra", capital: "Andorra la Vella" },
+            { code: "ae", name: "United Arab Emirates", capital: "Abu Dhabi" },
+            { code: "af", name: "Afghanistan", capital: "Kabul" },
+            { code: "ag", name: "Antigua and Barbuda", capital: "Saint John's" },
+            { code: "al", name: "Albania", capital: "Tirana" },
+            { code: "am", name: "Armenia", capital: "Yerevan" },
+            { code: "ao", name: "Angola", capital: "Luanda" },
+            { code: "ar", name: "Argentina", capital: "Buenos Aires" },
+            { code: "at", name: "Austria", capital: "Vienna" },
+            { code: "au", name: "Australia", capital: "Canberra" },
+            { code: "az", name: "Azerbaijan", capital: "Baku" },
+            { code: "ba", name: "Bosnia and Herzegovina", capital: "Sarajevo" },
+            { code: "bb", name: "Barbados", capital: "Bridgetown" },
+            { code: "bd", name: "Bangladesh", capital: "Dhaka" },
+            { code: "be", name: "Belgium", capital: "Brussels" },
+            { code: "bf", name: "Burkina Faso", capital: "Ouagadougou" },
+            { code: "bg", name: "Bulgaria", capital: "Sofia" },
+            { code: "bh", name: "Bahrain", capital: "Manama" },
+            { code: "bi", name: "Burundi", capital: "Gitega" },
+            { code: "bj", name: "Benin", capital: "Porto-Novo" },
+            { code: "bn", name: "Brunei", capital: "Bandar Seri Begawan" },
+            { code: "bo", name: "Bolivia", capital: "Sucre" },
+            { code: "br", name: "Brazil", capital: "Brasília" },
+            { code: "bs", name: "Bahamas", capital: "Nassau" },
+            { code: "bt", name: "Bhutan", capital: "Thimphu" },
+            { code: "bw", name: "Botswana", capital: "Gaborone" },
+            { code: "by", name: "Belarus", capital: "Minsk" },
+            { code: "bz", name: "Belize", capital: "Belmopan" },
+            { code: "ca", name: "Canada", capital: "Ottawa" },
+            { code: "cd", name: "Democratic Republic of the Congo", capital: "Kinshasa" },
+            { code: "cf", name: "Central African Republic", capital: "Bangui" },
+            { code: "cg", name: "Republic of the Congo", capital: "Brazzaville" },
+            { code: "ch", name: "Switzerland", capital: "Bern" },
+            { code: "ci", name: "Ivory Coast", capital: "Yamoussoukro" },
+            { code: "cl", name: "Chile", capital: "Santiago" },
+            { code: "cm", name: "Cameroon", capital: "Yaoundé" },
+            { code: "cn", name: "China", capital: "Beijing" },
+            { code: "co", name: "Colombia", capital: "Bogotá" },
+            { code: "cr", name: "Costa Rica", capital: "San José" },
+            { code: "cu", name: "Cuba", capital: "Havana" },
+            { code: "cv", name: "Cape Verde", capital: "Praia" },
+            { code: "cy", name: "Cyprus", capital: "Nicosia" },
+            { code: "cz", name: "Czech Republic", capital: "Prague" },
+            { code: "de", name: "Germany", capital: "Berlin" },
+            { code: "dj", name: "Djibouti", capital: "Djibouti" },
+            { code: "dk", name: "Denmark", capital: "Copenhagen" },
+            { code: "dm", name: "Dominica", capital: "Roseau" },
+            { code: "do", name: "Dominican Republic", capital: "Santo Domingo" },
+            { code: "dz", name: "Algeria", capital: "Algiers" },
+            { code: "ec", name: "Ecuador", capital: "Quito" },
+            { code: "ee", name: "Estonia", capital: "Tallinn" },
+            { code: "eg", name: "Egypt", capital: "Cairo" },
+            { code: "er", name: "Eritrea", capital: "Asmara" },
+            { code: "es", name: "Spain", capital: "Madrid" },
+            { code: "et", name: "Ethiopia", capital: "Addis Ababa" },
+            { code: "fi", name: "Finland", capital: "Helsinki" },
+            { code: "fj", name: "Fiji", capital: "Suva" },
+            { code: "fm", name: "Micronesia", capital: "Palikir" },
+            { code: "fr", name: "France", capital: "Paris" },
+            { code: "ga", name: "Gabon", capital: "Libreville" },
+            { code: "gb", name: "United Kingdom", capital: "London" },
+            { code: "gd", name: "Grenada", capital: "St. George's" },
+            { code: "ge", name: "Georgia", capital: "Tbilisi" },
+            { code: "gh", name: "Ghana", capital: "Accra" },
+            { code: "gm", name: "Gambia", capital: "Banjul" },
+            { code: "gn", name: "Guinea", capital: "Conakry" },
+            { code: "gq", name: "Equatorial Guinea", capital: "Malabo" },
+            { code: "gr", name: "Greece", capital: "Athens" },
+            { code: "gt", name: "Guatemala", capital: "Guatemala City" },
+            { code: "gw", name: "Guinea-Bissau", capital: "Bissau" },
+            { code: "gy", name: "Guyana", capital: "Georgetown" },
+            { code: "hn", name: "Honduras", capital: "Tegucigalpa" },
+            { code: "hr", name: "Croatia", capital: "Zagreb" },
+            { code: "ht", name: "Haiti", capital: "Port-au-Prince" },
+            { code: "hu", name: "Hungary", capital: "Budapest" },
+            { code: "id", name: "Indonesia", capital: "Jakarta" },
+            { code: "ie", name: "Ireland", capital: "Dublin" },
+            { code: "il", name: "Israel", capital: "Jerusalem" },
+            { code: "in", name: "India", capital: "New Delhi" },
+            { code: "iq", name: "Iraq", capital: "Baghdad" },
+            { code: "ir", name: "Iran", capital: "Tehran" },
+            { code: "is", name: "Iceland", capital: "Reykjavík" },
+            { code: "it", name: "Italy", capital: "Rome" },
+            { code: "jm", name: "Jamaica", capital: "Kingston" },
+            { code: "jo", name: "Jordan", capital: "Amman" },
+            { code: "jp", name: "Japan", capital: "Tokyo" },
+            { code: "ke", name: "Kenya", capital: "Nairobi" },
+            { code: "kg", name: "Kyrgyzstan", capital: "Bishkek" },
+            { code: "kh", name: "Cambodia", capital: "Phnom Penh" },
+            { code: "ki", name: "Kiribati", capital: "South Tarawa" },
+            { code: "km", name: "Comoros", capital: "Moroni" },
+            { code: "kn", name: "Saint Kitts and Nevis", capital: "Basseterre" },
+            { code: "kp", name: "North Korea", capital: "Pyongyang" },
+            { code: "kr", name: "South Korea", capital: "Seoul" },
+            { code: "kw", name: "Kuwait", capital: "Kuwait City" },
+            { code: "kz", name: "Kazakhstan", capital: "Nur-Sultan" },
+            { code: "la", name: "Laos", capital: "Vientiane" },
+            { code: "lb", name: "Lebanon", capital: "Beirut" },
+            { code: "lc", name: "Saint Lucia", capital: "Castries" },
+            { code: "li", name: "Liechtenstein", capital: "Vaduz" },
+            { code: "lk", name: "Sri Lanka", capital: "Colombo" },
+            { code: "lr", name: "Liberia", capital: "Monrovia" },
+            { code: "ls", name: "Lesotho", capital: "Maseru" },
+            { code: "lt", name: "Lithuania", capital: "Vilnius" },
+            { code: "lu", name: "Luxembourg", capital: "Luxembourg City" },
+            { code: "lv", name: "Latvia", capital: "Riga" },
+            { code: "ly", name: "Libya", capital: "Tripoli" },
+            { code: "ma", name: "Morocco", capital: "Rabat" },
+            { code: "mc", name: "Monaco", capital: "Monaco" },
+            { code: "md", name: "Moldova", capital: "Chișinău" },
+            { code: "me", name: "Montenegro", capital: "Podgorica" },
+            { code: "mg", name: "Madagascar", capital: "Antananarivo" },
+            { code: "mh", name: "Marshall Islands", capital: "Majuro" },
+            { code: "mk", name: "North Macedonia", capital: "Skopje" },
+            { code: "ml", name: "Mali", capital: "Bamako" },
+            { code: "mm", name: "Myanmar", capital: "Naypyidaw" },
+            { code: "mn", name: "Mongolia", capital: "Ulaanbaatar" },
+            { code: "mr", name: "Mauritania", capital: "Nouakchott" },
+            { code: "mt", name: "Malta", capital: "Valletta" },
+            { code: "mu", name: "Mauritius", capital: "Port Louis" },
+            { code: "mv", name: "Maldives", capital: "Malé" },
+            { code: "mw", name: "Malawi", capital: "Lilongwe" },
+            { code: "mx", name: "Mexico", capital: "Mexico City" },
+            { code: "my", name: "Malaysia", capital: "Kuala Lumpur" },
+            { code: "mz", name: "Mozambique", capital: "Maputo" },
+            { code: "na", name: "Namibia", capital: "Windhoek" },
+            { code: "ne", name: "Niger", capital: "Niamey" },
+            { code: "ng", name: "Nigeria", capital: "Abuja" },
+            { code: "ni", name: "Nicaragua", capital: "Managua" },
+            { code: "nl", name: "Netherlands", capital: "Amsterdam" },
+            { code: "no", name: "Norway", capital: "Oslo" },
+            { code: "np", name: "Nepal", capital: "Kathmandu" },
+            { code: "nr", name: "Nauru", capital: "Yaren" },
+            { code: "nz", name: "New Zealand", capital: "Wellington" },
+            { code: "om", name: "Oman", capital: "Muscat" },
+            { code: "pa", name: "Panama", capital: "Panama City" },
+            { code: "pe", name: "Peru", capital: "Lima" },
+            { code: "pg", name: "Papua New Guinea", capital: "Port Moresby" },
+            { code: "ph", name: "Philippines", capital: "Manila" },
+            { code: "pk", name: "Pakistan", capital: "Islamabad" },
+            { code: "pl", name: "Poland", capital: "Warsaw" },
+            { code: "pt", name: "Portugal", capital: "Lisbon" },
+            { code: "pw", name: "Palau", capital: "Ngerulmud" },
+            { code: "py", name: "Paraguay", capital: "Asunción" },
+            { code: "qa", name: "Qatar", capital: "Doha" },
+            { code: "ro", name: "Romania", capital: "Bucharest" },
+            { code: "rs", name: "Serbia", capital: "Belgrade" },
+            { code: "ru", name: "Russia", capital: "Moscow" },
+            { code: "rw", name: "Rwanda", capital: "Kigali" },
+            { code: "sa", name: "Saudi Arabia", capital: "Riyadh" },
+            { code: "sb", name: "Solomon Islands", capital: "Honiara" },
+            { code: "sc", name: "Seychelles", capital: "Victoria" },
+            { code: "sd", name: "Sudan", capital: "Khartoum" },
+            { code: "se", name: "Sweden", capital: "Stockholm" },
+            { code: "sg", name: "Singapore", capital: "Singapore" },
+            { code: "si", name: "Slovenia", capital: "Ljubljana" },
+            { code: "sk", name: "Slovakia", capital: "Bratislava" },
+            { code: "sl", name: "Sierra Leone", capital: "Freetown" },
+            { code: "sm", name: "San Marino", capital: "San Marino" },
+            { code: "sn", name: "Senegal", capital: "Dakar" },
+            { code: "so", name: "Somalia", capital: "Mogadishu" },
+            { code: "sr", name: "Suriname", capital: "Paramaribo" },
+            { code: "ss", name: "South Sudan", capital: "Juba" },
+            { code: "st", name: "Sao Tome and Principe", capital: "São Tomé" },
+            { code: "sv", name: "El Salvador", capital: "San Salvador" },
+            { code: "sy", name: "Syria", capital: "Damascus" },
+            { code: "sz", name: "Eswatini", capital: "Mbabane" },
+            { code: "td", name: "Chad", capital: "N'Djamena" },
+            { code: "tg", name: "Togo", capital: "Lomé" },
+            { code: "th", name: "Thailand", capital: "Bangkok" },
+            { code: "tj", name: "Tajikistan", capital: "Dushanbe" },
+            { code: "tl", name: "Timor-Leste", capital: "Dili" },
+            { code: "tm", name: "Turkmenistan", capital: "Ashgabat" },
+            { code: "tn", name: "Tunisia", capital: "Tunis" },
+            { code: "to", name: "Tonga", capital: "Nuku'alofa" },
+            { code: "tr", name: "Turkey", capital: "Ankara" },
+            { code: "tt", name: "Trinidad and Tobago", capital: "Port of Spain" },
+            { code: "tv", name: "Tuvalu", capital: "Funafuti" },
+            { code: "tz", name: "Tanzania", capital: "Dodoma" },
+            { code: "ua", name: "Ukraine", capital: "Kyiv" },
+            { code: "ug", name: "Uganda", capital: "Kampala" },
+            { code: "us", name: "United States", capital: "Washington, D.C." },
+            { code: "uy", name: "Uruguay", capital: "Montevideo" },
+            { code: "uz", name: "Uzbekistan", capital: "Tashkent" },
+            { code: "va", name: "Vatican City", capital: "Vatican City" },
+            { code: "vc", name: "Saint Vincent and the Grenadines", capital: "Kingstown" },
+            { code: "ve", name: "Venezuela", capital: "Caracas" },
+            { code: "vn", name: "Vietnam", capital: "Hanoi" },
+            { code: "vu", name: "Vanuatu", capital: "Port Vila" },
+            { code: "ws", name: "Samoa", capital: "Apia" },
+            { code: "ye", name: "Yemen", capital: "Sana'a" },
+            { code: "za", name: "South Africa", capital: "Pretoria" },
+            { code: "zm", name: "Zambia", capital: "Lusaka" },
+            { code: "zw", name: "Zimbabwe", capital: "Harare" }
+    ];
+
+    // Game state
+    let score = 0;
+    let mistakes = 0;
+    let countryIndex = 0;
+    let shuffledCountries = [];
+
+    const flagImage = document.getElementById("flag-image");
+    const optionsContainer = document.getElementById("options-container");
+    const capitalInfo = document.getElementById("capital-info");
+    const scoreDisplay = document.getElementById("score");
+    const mistakeDisplay = document.getElementById("mistakes");
+    const nextButton = document.getElementById("next-button");
+
+    // Shuffle array (Fisher-Yates)
+    function shuffleArray(array) {
+      const copy = [...array];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    // Load next flag
+    function loadFlag() {
+      capitalInfo.style.display = "none";
+      nextButton.style.display = "none";
+      optionsContainer.innerHTML = "";
+
+      if (countryIndex >= shuffledCountries.length) {
+        showFinal("You've guessed all flags correctly!");
+        return;
+      }
+
+      const currentCountry = shuffledCountries[countryIndex];
+      flagImage.src = `https://flagcdn.com/w320/${currentCountry.code}.png`;
+      flagImage.alt = `Flag of ${currentCountry.name}`;
+
+      // Get 3 wrong + 1 correct option
+      const options = shuffleArray(countries.filter(c => c !== currentCountry)).slice(0, 3);
+      options.push(currentCountry);
+      const shuffledOptions = shuffleArray(options);
+
+      // Display options
+      shuffledOptions.forEach(option => {
+        const btn = document.createElement("button");
+        btn.className = "option-button";
+        btn.textContent = option.name;
+        btn.dataset.code = option.code;
+        btn.onclick = () => handleAnswer(btn, option.code, currentCountry.code, currentCountry.capital);
+        optionsContainer.appendChild(btn);
+      });
+    }
+
+    // Handle answer click
+    function handleAnswer(button, selectedCode, correctCode, capital) {
+      const buttons = document.querySelectorAll(".option-button");
+      buttons.forEach(btn => btn.disabled = true);
+      capitalInfo.textContent = `Capital of this country is ${capital}`;
+      capitalInfo.style.display = "block";
+
+      if (selectedCode === correctCode) {
+        score++;
+        scoreDisplay.textContent = score;
+        button.classList.add("correct");
+      } else {
+        mistakes++;
+        mistakeDisplay.textContent = mistakes;
+        button.classList.add("incorrect");
+
+        // Highlight correct button
+        buttons.forEach(btn => {
+          if (btn.dataset.code === correctCode) btn.classList.add("correct");
+        });
+
+        // If 3 mistakes, end game
+        if (mistakes >= 3) {
+          showFinal(`Game Over! You made 3 mistakes.`);
+          return;
+        }
+      }
+
+      nextButton.style.display = "inline-block";
+    }
+
+    // Show final message
+    function showFinal(message) {
+      document.querySelector(".quiz-container").innerHTML = `
+        <h2>${message}</h2>
+        <p>Your score: ${score}/${shuffledCountries.length}</p>
+        <button onclick="location.reload()" class="next-button">Play Again</button>
+      `;
+    }
+
+    // Next flag
+    nextButton.addEventListener("click", () => {
+      countryIndex++;
+      loadFlag();
+    });
+
+    // Start game
+    shuffledCountries = shuffleArray(countries);
+    loadFlag();
+ </script>
+
+<!-- Link back to the homepage -->
+<div style="margin-top: 30px;">
+  <a href="homepage.html" style="
+    text-decoration: none;
+    font-size: 18px;
+    font-weight: bold;
+    color: #4CAF50;
+    padding: 12px 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    transition: background-color 0.3s ease;
+  " 
+  onmouseover="this.style.backgroundColor='#f0f0f0';" 
+  onmouseout="this.style.backgroundColor='#fff';">
+    Back to Homepage
+  </a>
+</div>
+
+
+ 
+</body>
+</html>

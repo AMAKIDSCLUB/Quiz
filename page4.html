@@ -1,0 +1,259 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Car Logo Quiz - Survival Mode</title>
+  <style>
+    body {
+            font-family: 'Arial', sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+            background-color: #333;
+            background-image: url('background.jpeg'); /* Optional background image */
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+    }
+    .quiz-container {
+      background: #f5f5f5;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    }
+    .logo-container {
+      height: 180px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 20px 0;
+    }
+    .logo-container img {
+      max-height: 180px;
+      max-width: 250px;
+      object-fit: contain;
+    }
+    .options-container {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+      margin: 20px 0;
+    }
+    .option-button {
+      padding: 12px;
+      border: none;
+      background: #eee;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: 0.3s;
+      font-weight: bold;
+    }
+    .option-button:hover { background: #ddd; }
+    .option-button.correct { background: green; color: white; }
+    .option-button.incorrect { background: red; color: white; }
+    .next-button {
+      padding: 10px 20px;
+      background: #ff5722;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      display: none;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .origin-info {
+      font-weight: bold;
+      margin: 10px 0;
+      display: none;
+    }
+    .footer { margin-top: 20px; font-weight: bold; color: white; }
+  </style>
+</head>
+<body>
+
+  <h1 style="color: white;">Car Logo Quiz - Survival Mode</h1>
+  <div class="quiz-container">
+    <p>Score: <span id="score">0</span> | Mistakes: <span id="mistakes">0</span>/3</p>
+    <div class="logo-container">
+      <img id="logo-image" src="" alt="Car Logo">
+    </div>
+    <div class="options-container" id="options-container"></div>
+    <div class="origin-info" id="origin-info"></div>
+    <button id="next-button" class="next-button">Next Logo</button>
+  </div>
+
+  <div class="footer">Made by AMA Kids Clubs</div>
+
+  <script>
+    // Car logo data with direct links to online images
+    const carBrands = [
+      { code: "audi", name: "Audi", origin: "Germany", logo: "https://car-logos.org/wp-content/uploads/2022/08/audi.png" },
+      { code: "bmw", name: "BMW", origin: "Germany", logo: "https://www.car-logos.org/wp-content/uploads/2022/08/bmw.png" },
+      { code: "mercedes", name: "Mercedes-Benz", origin: "Germany", logo: "https://www.car-logos.org/wp-content/uploads/2022/08/mercedes.png" },
+      { code: "volkswagen", name: "Volkswagen", origin: "Germany", logo: "https://www.car-logos.org/wp-content/uploads/2022/08/volkswagen.png" },
+      { code: "porsche", name: "Porsche", origin: "Germany", logo: "https://www.car-logos.org/wp-content/uploads/2022/08/porsche.png" },
+      { code: "toyota", name: "Toyota", origin: "Japan", logo: "https://www.car-logos.org/wp-content/uploads/2022/08/toyota.png" },
+      { code: "honda", name: "Honda", origin: "Japan", logo: "https://www.car-logos.org/wp-content/uploads/2022/08/honda.png" },
+      { code: "nissan", name: "Nissan", origin: "Japan", logo: "https://www.car-logos.org/wp-content/uploads/2022/08/nissan.png" },
+      { code: "mazda", name: "Mazda", origin: "Japan", logo: "https://www.car-logos.org/wp-content/uploads/2022/08/mazda.png" },
+      { code: "subaru", name: "Subaru", origin: "Japan", logo: "https://www.car-logos.org/wp-content/uploads/2022/08/subaru.png" },
+      { code: "lexus", name: "Lexus", origin: "Japan", logo: "https://www.car-logos.org/wp-content/uploads/2022/08/lexus.png" },
+      { code: "mitsubishi", name: "Mitsubishi", origin: "Japan", logo: "https://www.car-logos.org/wp-content/uploads/2022/08/mitsubishi.png" },
+      { code: "ford", name: "Ford", origin: "United States", logo: "https://www.car-logos.org/wp-content/uploads/2022/08/ford.png" },
+      { code: "chevrolet", name: "Chevrolet", origin: "United States", logo: "https://www.car-logos.org/wp-content/uploads/2022/08/chevrolet.png" },
+      { code: "dodge", name: "Dodge", origin: "United States", logo: "https://www.car-logos.org/wp-content/uploads/2022/08/dodge.png" },
+      { code: "jeep", name: "Jeep", origin: "United States", logo: "https://www.car-logos.org/wp-content/uploads/2022/08/jeep.png" },
+      { code: "cadillac", name: "Cadillac", origin: "United States", logo: "https://www.car-logos.org/wp-content/uploads/2022/08/cadillac.png" },
+      { code: "tesla", name: "Tesla", origin: "United States", logo: "https://www.car-logos.org/wp-content/uploads/2022/08/tesla.png" },
+      { code: "ferrari", name: "Ferrari", origin: "Italy", logo: "https://www.car-logos.org/wp-content/uploads/2022/08/ferrari.png" },
+      { code: "lamborghini", name: "Lamborghini", origin: "Italy", logo: "https://www.car-logos.org/wp-content/uploads/2022/08/lamb.png" },
+      { code: "maserati", name: "Maserati", origin: "Italy", logo: "https://www.car-logos.org/wp-content/uploads/2022/08/maserati.png" },
+      { code: "alfa-romeo", name: "Alfa Romeo", origin: "Italy", logo: "https://www.car-logos.org/wp-content/uploads/2022/08/alfa_romeo.png" },
+      { code: "fiat", name: "Fiat", origin: "Italy", logo: "https://www.car-logos.org/wp-content/uploads/2022/08/fiat.png" },
+      { code: "bugatti", name: "Bugatti", origin: "France", logo: "https://www.car-logos.org/wp-content/uploads/2022/08/bugatti.png" },
+      { code: "renault", name: "Renault", origin: "France", logo: "https://www.car-logos.org/wp-content/uploads/2022/08/renault.png" },
+      { code: "peugeot", name: "Peugeot", origin: "France", logo: "https://www.car-logos.org/wp-content/uploads/2022/08/peugeot.png" },
+      { code: "citroen", name: "Citroën", origin: "France", logo: "https://www.car-logos.org/wp-content/uploads/2022/08/citroen.png" },
+      { code: "jaguar", name: "Jaguar", origin: "United Kingdom", logo: "https://car-logos.org/wp-content/uploads/2024/03/channels4_profile-3.jpg" },
+      { code: "land-rover", name: "Land Rover", origin: "United Kingdom", logo: "https://www.car-logos.org/wp-content/uploads/2022/08/land-rover.png" },
+      { code: "aston-martin", name: "Aston Martin", origin: "United Kingdom", logo: "https://www.car-logos.org/wp-content/uploads/2022/08/aston-martin.png" },
+      { code: "bentley", name: "Bentley", origin: "United Kingdom", logo: "https://www.car-logos.org/wp-content/uploads/2022/08/bentley.png" },
+      { code: "mini", name: "Mini", origin: "United Kingdom", logo: "https://www.car-logos.org/wp-content/uploads/2022/08/mini.png" },
+      { code: "rolls-royce", name: "Rolls-Royce", origin: "United Kingdom", logo: "https://www.car-logos.org/wp-content/uploads/2022/08/rolls-royce.png" },
+      { code: "volvo", name: "Volvo", origin: "Sweden", logo: "https://www.car-logos.org/wp-content/uploads/2022/08/volvo.png" },
+      { code: "koenigsegg", name: "Koenigsegg", origin: "Sweden", logo: "https://www.car-logos.org/wp-content/uploads/2022/08/koenigsegg.png" },
+      { code: "hyundai", name: "Hyundai", origin: "South Korea", logo: "https://www.car-logos.org/wp-content/uploads/2022/08/hyundai.png" },
+      { code: "kia", name: "Kia", origin: "South Korea", logo: "https://www.car-logos.org/wp-content/uploads/2022/08/kia.png" },
+      { code: "skoda", name: "Škoda", origin: "Czech Republic", logo: "https://www.car-logos.org/wp-content/uploads/2022/08/skoda.png" },
+      { code: "seat", name: "SEAT", origin: "Spain", logo: "https://www.car-logos.org/wp-content/uploads/2022/08/seat.png" }
+    ];
+
+    // Game state 
+    let score = 0;
+    let mistakes = 0;
+    let brandIndex = 0;
+    let shuffledBrands = [];
+
+    const logoImage = document.getElementById("logo-image");
+    const optionsContainer = document.getElementById("options-container");
+    const originInfo = document.getElementById("origin-info");
+    const scoreDisplay = document.getElementById("score");
+    const mistakeDisplay = document.getElementById("mistakes");
+    const nextButton = document.getElementById("next-button");
+
+    // Shuffle array (Fisher-Yates)
+    function shuffleArray(array) {
+      const copy = [...array];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    // Load next logo
+    function loadLogo() {
+      originInfo.style.display = "none";
+      nextButton.style.display = "none";
+      optionsContainer.innerHTML = "";
+
+      if (brandIndex >= shuffledBrands.length) {
+        showFinal("You've guessed all car logos correctly!");
+        return;
+      }
+
+      const currentBrand = shuffledBrands[brandIndex];
+      // Use the online logo URL
+      logoImage.src = currentBrand.logo;
+      logoImage.alt = `Logo of ${currentBrand.name}`;
+
+      // Get 3 wrong + 1 correct option
+      const options = shuffleArray(carBrands.filter(c => c !== currentBrand)).slice(0, 3);
+      options.push(currentBrand);
+      const shuffledOptions = shuffleArray(options);
+
+      // Display options
+      shuffledOptions.forEach(option => {
+        const btn = document.createElement("button");
+        btn.className = "option-button";
+        btn.textContent = option.name;
+        btn.dataset.code = option.code;
+        btn.onclick = () => handleAnswer(btn, option.code, currentBrand.code, currentBrand.origin);
+        optionsContainer.appendChild(btn);
+      });
+    }
+
+    // Handle answer click
+    function handleAnswer(button, selectedCode, correctCode, origin) {
+      const buttons = document.querySelectorAll(".option-button");
+      buttons.forEach(btn => btn.disabled = true);
+      originInfo.textContent = `This car brand is from ${origin}`;
+      originInfo.style.display = "block";
+
+      if (selectedCode === correctCode) {
+        score++;
+        scoreDisplay.textContent = score;
+        button.classList.add("correct");
+      } else {
+        mistakes++;
+        mistakeDisplay.textContent = mistakes;
+        button.classList.add("incorrect");
+
+        // Highlight correct button
+        buttons.forEach(btn => {
+          if (btn.dataset.code === correctCode) btn.classList.add("correct");
+        });
+
+        // If 3 mistakes, end game
+        if (mistakes >= 3) {
+          showFinal(`Game Over! You made 3 mistakes.`);
+          return;
+        }
+      }
+
+      nextButton.style.display = "inline-block";
+    }
+
+    // Show final message
+    function showFinal(message) {
+      document.querySelector(".quiz-container").innerHTML = `
+        <h2>${message}</h2>
+        <p>Your score: ${score}/${shuffledBrands.length}</p>
+        <button onclick="location.reload()" class="next-button">Play Again</button>
+      `;
+    }
+
+    // Next logo
+    nextButton.addEventListener("click", () => {
+      brandIndex++;
+      loadLogo();
+    });
+
+    // Start game
+    shuffledBrands = shuffleArray(carBrands);
+    loadLogo();
+ </script>
+
+<!-- Link back to the homepage -->
+<div style="margin-top: 30px;">
+  <a href="homepage.html" style="
+    text-decoration: none;
+    font-size: 18px;
+    font-weight: bold;
+    color: #ff5722;
+    padding: 12px 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    transition: background-color 0.3s ease;
+  " 
+  onmouseover="this.style.backgroundColor='#f0f0f0';" 
+  onmouseout="this.style.backgroundColor='#fff';">
+    Back to Homepage
+  </a>
+</div>
+ 
+</body>
+</html>

@@ -1,0 +1,87 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Country Flag Quiz - Home</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Arial', sans-serif;
+      height: 100vh;
+      background: linear-gradient(135deg, #6495ED, #00CED1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      color: white;
+    }
+
+    h1 {
+      font-size: 3rem;
+      margin-bottom: 40px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .button-container {
+      display: flex;
+      flex-direction: column;
+      gap: 25px;
+      width: 80%;
+      max-width: 400px;
+    }
+
+    .quiz-button {
+      padding: 20px;
+      font-size: 1.5rem;
+      font-weight: bold;
+      background-color: #ffffff;
+      color: #333;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+
+    .quiz-button:hover {
+      background-color: #f0f0f0;
+      transform: scale(1.05);
+    }
+
+    .footer {
+      position: absolute;
+      bottom: 20px;
+      color: #eee;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🌍 Quiz Options</h1>
+
+  <div class="button-container">
+    <button class="quiz-button" onclick="location.href='Page1.html'">
+      🎯 Flags - Classic Mode (10 Questions)
+    </button>
+    <button class="quiz-button" onclick="location.href='Page2.html'">
+      💀 Flags - Survival Mode (3 Mistakes Max)
+    </button>
+ <button class="quiz-button" onclick="location.href='Page3.html'">
+      🎯 Capital - Classic Mode (10 Questions)
+    </button>
+ <button class="quiz-button" onclick="location.href='Page4.html'">
+      💀 Car Logos - Survival Mode (3 Mistakes Max)
+    </button>
+
+  </div>
+
+<div class="footer">
+  <img src="logo.jpg" alt="AMA Kids Clubs Logo" style="max-width: 120px; height: auto; margin-top: 20px;"/>
+</div>
+
+</body>
+</html>
